@@ -7,28 +7,29 @@ on:
 jobs:
   comment:
     runs-on: ubuntu-latest
+    permissions:
+      issues: write
     steps:
-      - name: Add comment based on label
+      - name: Comment on issue based on label
         uses: actions/github-script@v7
         with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
             const issue = context.payload.issue;
             const labels = issue.labels.map(label => label.name);
             
-            let commentBody;
+            let comment = '';
             
             if (labels.includes('bug')) {
-              commentBody = 'Thank you. We will fix it';
+              comment = 'Thank you. We will fix it';
             } else if (labels.includes('feature')) {
-              commentBody = 'Thank you, we will consider to include this feature.';
+              comment = 'Thank you, we will consider to include this feature.';
             } else {
-              commentBody = 'Thank you for your contribution!';
+              comment = 'Thank you for your contribution!';
             }
             
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: issue.number,
-              body: commentBody
+              body: comment
             });
